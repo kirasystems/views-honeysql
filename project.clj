@@ -1,6 +1,6 @@
 (defproject views/honeysql "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "HoneySQL view implementation for views"
+  :url "https://github.com/kirasystems/views-honeysql"
   :license {:name "MIT License"
             :url "http://opensource.org/licenses/MIT"}
   :dependencies [[views "1.4.0-SNAPSHOT"]
