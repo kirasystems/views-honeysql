@@ -12,7 +12,7 @@
   (id [_] id)
   (data [_ namespace parameters]
     (let [start (System/currentTimeMillis)
-          data (j/query db (hsql/format (apply query-fn parameters)) :row-fn post-fn)
+          data  (j/query db (hsql/format (apply query-fn parameters)) :row-fn post-fn)
           time  (- (System/currentTimeMillis) start)]
       (when (>= time 1000) (warn id "took" time "msecs"))
       data))

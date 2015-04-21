@@ -41,7 +41,7 @@
         hsql-hint (hint :views/honeysql (query-tables action-map))]
     (if-let [hints (:hints db)]
       (swap! hints conj hsql-hint)
-      (send-hints! [hsql-hint]))
+      (@send-hints! [hsql-hint]))
     results))
 
 (defn set-hint-transport-fn!
