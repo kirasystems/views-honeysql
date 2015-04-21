@@ -43,3 +43,10 @@
       (swap! hints conj hsql-hint)
       (send-hints! [hsql-hint]))
     results))
+
+(defn set-hint-transport-fn!
+  "The hint transport function should take a collection of hints and
+   send them to the configured view system. On a non-distribued server this
+   can be: (fn [hints] (refresh-views! views-config hints))"
+  [f]
+  (reset! send-hints! f))
