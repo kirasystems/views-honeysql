@@ -3,7 +3,7 @@
   :url "https://github.com/kirasystems/views-honeysql"
   :license {:name "MIT License"
             :url "http://opensource.org/licenses/MIT"}
-  :dependencies [[views "1.4.1-SNAPSHOT"]
+  :dependencies [[views "1.4.1"]
                  [honeysql "0.6.0"]
                  [org.clojure/java.jdbc "0.3.6"]
                  [org.clojure/tools.logging "0.3.1"]]
