@@ -3,6 +3,7 @@
     [honeysql.core :as hsql]
     [honeysql.helpers :as hh]
     [clojure.string :refer [split]]))
+
 ;; The following is used for full refresh views where we can have CTEs and
 ;; subselects in play.
 
@@ -16,9 +17,11 @@
   [v]
   (if (coll? v) (recur (first v)) v))
 
-(defn cte-tables
-  [query]
-  (mapcat #(query-tables (second %)) (:with query)))
+(defn second-level-tables
+  "For HoneySQL constructs where there is a subselect embedded
+   in the second value of a vector--CTEs, lateral joins."
+  [query clause-key]
+  (mapcat #(query-tables (second %)) (get query clause-key)))
 
 (defn isolate-tables
   "Isolates tables from table definitions in from and join clauses."
@@ -67,7 +70,9 @@
   "Return all the tables in an sql statement."
   [query]
   (set (concat
-         (cte-tables query)
+         (second-level-tables query :with)
+         (second-level-tables query :join-lateral)
+         (second-level-tables query :left-join-lateral)
          (from-tables query)
          (join-tables query :join)
          (join-tables query :left-join)
