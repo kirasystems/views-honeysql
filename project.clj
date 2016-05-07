@@ -9,13 +9,13 @@
                               :username :env
                               :password :env}]]
 
-  :dependencies [[kirasystems/views "1.4.5"]
-                 [honeysql "0.6.0"]
-                 [org.clojure/java.jdbc "0.3.6"]
+  :dependencies [[kirasystems/views "1.4.8"]
+                 [honeysql "0.6.3"]
+                 [org.clojure/java.jdbc "0.5.8"]
                  [org.clojure/tools.logging "0.3.1"]]
-  :plugins [[lein-ancient "0.6.7"]]
+  :plugins [[lein-ancient "0.6.10"]]
   :profiles {:dev {:dependencies
-                   [[org.clojure/clojure "1.6.0"]]}}
+                   [[org.clojure/clojure "1.7.0"]]}}
 
   :release-tasks [["vcs" "assert-committed"]
                   ["change" "version" "leiningen.release/bump-version" "release"]
