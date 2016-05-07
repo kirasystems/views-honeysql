@@ -9,7 +9,7 @@
                               :username :env
                               :password :env}]]
 
-  :dependencies [[views "1.4.4"]
+  :dependencies [[kirasystems/views "1.4.5"]
                  [honeysql "0.6.0"]
                  [org.clojure/java.jdbc "0.3.6"]
                  [org.clojure/tools.logging "0.3.1"]]
