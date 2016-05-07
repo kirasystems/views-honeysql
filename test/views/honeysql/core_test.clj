@@ -1,6 +1,6 @@
-(ns views-honeysql.core-test
+(ns views.honeysql.core-test
   (:require [clojure.test :refer :all]
-            [views-honeysql.core :refer :all]))
+            [views.honeysql.core :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."
