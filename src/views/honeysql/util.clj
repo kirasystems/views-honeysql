@@ -71,6 +71,7 @@
   [query]
   (set (concat
          (second-level-tables query :with)
+         (second-level-tables query :with-recursive)
          (second-level-tables query :join-lateral)
          (second-level-tables query :left-join-lateral)
          (from-tables query)
