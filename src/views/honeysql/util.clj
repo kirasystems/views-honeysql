@@ -1,8 +1,9 @@
-(ns views.honeysql.util
-  (:require
-    [honeysql.core :as hsql]
-    [honeysql.helpers :as hh]
-    [clojure.string :refer [split]]))
+(ns views.honeysql.util)
+
+#_(:require
+   [honeysql.core :as hsql]
+   [honeysql.helpers :as hh]
+   [clojure.string :refer [split]])
 
 ;; The following is used for full refresh views where we can have CTEs and
 ;; subselects in play.
@@ -66,19 +67,30 @@
   [query]
   (if-let [v (:delete-from query)] [v] []))
 
+(defn set-operations-tables
+  "return tables used in operands for the set operation op
+
+  note: HoneySQL currently support INTERSECT, UNION, UNION ALL as set
+  operations."
+  [query op]
+  (mapcat query-tables (op query)))
+
 (defn query-tables
   "Return all the tables in an sql statement."
   [query]
   (set (concat
-         (second-level-tables query :with)
-         (second-level-tables query :with-recursive)
-         (second-level-tables query :join-lateral)
-         (second-level-tables query :left-join-lateral)
-         (from-tables query)
-         (join-tables query :join)
-         (join-tables query :left-join)
-         (join-tables query :right-join)
-         (where-tables query)
-         (insert-tables query)
-         (update-tables query)
-         (delete-tables query))))
+        (second-level-tables query :with)
+        (second-level-tables query :with-recursive)
+        (second-level-tables query :join-lateral)
+        (second-level-tables query :left-join-lateral)
+        (from-tables query)
+        (join-tables query :join)
+        (join-tables query :left-join)
+        (join-tables query :right-join)
+        (where-tables query)
+        (insert-tables query)
+        (update-tables query)
+        (delete-tables query)
+        (set-operations-tables query :intersect)
+        (set-operations-tables query :union-all)
+        (set-operations-tables query :union))))
