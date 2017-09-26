@@ -1,10 +1,5 @@
 (ns views.honeysql.util)
 
-#_(:require
-   [honeysql.core :as hsql]
-   [honeysql.helpers :as hh]
-   [clojure.string :refer [split]])
-
 ;; The following is used for full refresh views where we can have CTEs and
 ;; subselects in play.
 
