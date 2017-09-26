@@ -5,20 +5,20 @@
 
 (deftest query-tables-test
   (testing "will return the list of tables in a simple select from
-  table uery"
+  table query"
     (let [query (hsql/build {:select [:field1]
                              :from [:table1]})]
       (is (= #{:table1}
              (util/query-tables query)))))
-  (testing "will return the list of tables in a query containing a sub query"
+  (testing "will return the list of tables in a query containing a subquery"
     (let [query (hsql/build {:with [[:sub_query {:select [:field2]
                                                  :from [:table2]}]]
                              :select [:field1]
                              :from [:table1]})]
       (is (= #{:table1 :table2}
              (util/query-tables query)))))
-  (testing "will retun the list of tables used in a sub queries from a
-  compond query using set operation"
+  (testing "will return the list of tables used in subqueries from a
+  compound query using set operation"
     (testing "intersect"
       (let [query (hsql/build {:intersect [{:select [:field1]
                                             :from [:table1]}
@@ -40,7 +40,7 @@
                                             :from [:table2]}]})]
         (is (= #{:table1 :table2}
                (util/query-tables query)))))
-    (testing "intersect as part of a sub query"
+    (testing "intersect as part of a subquery"
       (let [query (hsql/build {:with [[:sub_query {:intersect [{:select [:field2]
                                                                 :from [:table2]}
                                                                {:select [:field3]
