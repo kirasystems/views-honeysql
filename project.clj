@@ -9,8 +9,8 @@
                               :username :env
                               :password :env}]]
 
-  :dependencies [[kirasystems/views "1.4.8"]
-                 [honeysql "0.6.3"]
+  :dependencies [[kirasystems/views "2.0.0"]
+                 [honeysql "0.9.1"]
                  [org.clojure/java.jdbc "0.5.8"]
                  [org.clojure/tools.logging "0.3.1"]]
   :plugins [[lein-ancient "0.6.10"]]
