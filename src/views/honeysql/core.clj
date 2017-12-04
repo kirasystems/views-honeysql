@@ -34,7 +34,12 @@
   "Used to perform arbitrary insert/update/delete actions on the database,
    while ensuring that view hints are sent to the view system.
    Arguments are:
-   - db: a clojure.java.jdbc database with fid field
+   - db: a clojure.java.jdbc database with optional :hints field.
+    
+     If hints field is present hints will be conj'd to the collection.
+     Otherwise send-hints function set by set-hint-transport-fn! will
+     be used.
+  
    - action-map: the HoneySQL map for the insert/update/delete action"
   [db action-map]
   (let [results   (execute-honeysql! db action-map)
