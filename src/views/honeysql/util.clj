@@ -45,6 +45,11 @@
     (map? wc)  [wc]
     :else      []))
 
+(defn select-tables
+  "Search for subqueries in the select clause."
+  [query]
+  (mapcat query-tables (collect-maps (:select query))))
+
 (defn where-tables
   "This search for subqueries in the where clause."
   [query]
@@ -70,6 +75,11 @@
   [query op]
   (mapcat query-tables (op query)))
 
+(defn exists-tables
+  [query]
+  (when (:exists query)
+    (query-tables (:exists query))))
+
 (defn query-tables
   "Return all the tables in an sql statement."
   [query]
@@ -82,10 +92,12 @@
         (join-tables query :join)
         (join-tables query :left-join)
         (join-tables query :right-join)
+        (select-tables query)
         (where-tables query)
         (insert-tables query)
         (update-tables query)
         (delete-tables query)
         (set-operations-tables query :intersect)
         (set-operations-tables query :union-all)
-        (set-operations-tables query :union))))
+        (set-operations-tables query :union)
+        (exists-tables query))))

@@ -53,4 +53,16 @@
     (let [query (hsql/build
                  {:with-recursive [[:test_query {:select [:foo] :from [:bar]}]]})]
       (is (= #{:bar}
+             (util/query-tables query)))))
+
+  (testing "will return table in exists"
+    (let [in-select-query {:select [[{:exists {:select [1] :from [:foo]}} :col]] :from [:bar]}]
+      (is (= #{:foo :bar}
+             (util/query-tables in-select-query))))
+    (let [in-where-query {:select [:col] :from [:bar] :where [:exists {:select [1] :from [:foo]}]}]
+      (is (= #{:foo :bar}
+             (util/query-tables in-where-query)))))
+  (testing "will return table mentioned in select clause"
+    (let [query {:select [[{:select [1] :from [:foo] :limit 1} :col]] :from [:bar]}]
+      (is (= #{:foo :bar}
              (util/query-tables query))))))
