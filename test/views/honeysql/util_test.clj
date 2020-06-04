@@ -65,4 +65,56 @@
   (testing "will return table mentioned in select clause"
     (let [query {:select [[{:select [1] :from [:foo] :limit 1} :col]] :from [:bar]}]
       (is (= #{:foo :bar}
+             (util/query-tables query)))))
+
+  (testing "multiple from,join"
+    (let [query {:select [[{:select [:%count.aa.a]
+                            :from [[:AA :aa]
+                                   [:BB :bb]
+                                   [:CC :cc]]} :ca]
+                          [{:select [:%count.dd.a]
+                            :from {:DD :dd}} :cd]]
+                 :from {:EE :ee}
+                 :join [[:FF :ff] [:= :ff.a :ee.a]
+                        [:GG :gg] [:= :gg.a :ee.a]]}]
+      (is (= #{:AA :BB :CC :DD :EE :FF :GG}
+             (util/query-tables query)))))
+
+  (testing "DEV-9832"
+    (let [[fid uid] [1 1]
+          rdcs (hsql/build :select [:dr.did]
+                           :from   [[:DW :dw]]
+                           :join   [[:WF :wf] [:= :wf.wid :dw.wid]
+                                    [:DD :d]  [:= :d.did :dw.did]
+                                    [:DR :dr] [:= :dr.did :d.did]]
+                           :where  [:and
+                                    [:= :wf.fid fid]
+                                    [:= :d.sd false]])
+          cdcs (hsql/build :select [:ods.did]
+                           :from   [[:ODS :ods]]
+                           :join   [[:OMM :omm] [:= :ods.batch_id :omm.batch_id]]
+                           :where  [:and
+                                    [:= :omm.fid fid]
+                                    [:= :omm.ic true]
+                                    [:= :omm.sd false]])
+          query             {:select    [:fo.option
+                                         :fo.pos
+                                         [(hsql/call :filter
+                                                     :%count-distinct.fia.did
+                                                     [:in :fia.did (hsql/build :union [rdcs cdcs])])
+                                          :answer_documents]]
+                             :from      [[:FO :fo]]
+                             :left-join [[:FIA :fia] [:= :fia.foid :fo.foid]]
+                             :where     [:and
+                                         [:= :fo.fid fid]
+                                         [:= :fo.fot "standard"]]
+                             :group-by  [:fo.option :fo.pos]}]
+      (is (= #{:DR
+               :DD
+               :DW
+               :FIA
+               :FO
+               :ODS
+               :OMM
+               :WF}
              (util/query-tables query))))))
