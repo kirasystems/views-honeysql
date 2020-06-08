@@ -1,4 +1,4 @@
-(defproject kirasystems/views-honeysql "0.1.5"
+(defproject kirasystems/views-honeysql "0.1.6-SNAPSHOT"
   :description "HoneySQL view implementation for views"
   :url "https://github.com/kirasystems/views-honeysql"
   :license {:name "MIT License"
