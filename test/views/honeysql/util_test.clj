@@ -80,7 +80,7 @@
       (is (= #{:AA :BB :CC :DD :EE :FF :GG}
              (util/query-tables query)))))
 
-  (testing "DEV-9832"
+  (testing "DEV-9832, query-tables should pick tables in filter clause"
     (let [[fid uid] [1 1]
           rdcs (hsql/build :select [:dr.did]
                            :from   [[:DW :dw]]
