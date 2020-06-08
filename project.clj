@@ -6,8 +6,8 @@
 
   :repositories [["releases" {:url "https://clojars.org/repo"
                               :sign-releases false
-                              :username :env
-                              :password :env}]]
+                              :username :env/clojars_username
+                              :password :env/clojars_password}]]
 
   :dependencies [[kirasystems/views "2.0.0"]
                  [honeysql "0.9.1"]

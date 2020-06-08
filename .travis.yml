@@ -1,14 +1,15 @@
 language: clojure
+jdk:
+- openjdk8
+- openjdk11
 deploy:
   skip_cleanup: true
   provider: script
   script: lein deploy
   on:
     tags: true
-notifications:
-  slack:
-    secure: LCmy4Ow7g+JoNZ4ohsVzuxXMimYBwTzPDehty4bDvhjeEUOMJIlWMAF26dxyI+ffoBYLWsTmopO6Sc+4gTEqhMmgz9ZDFwz5mX5saN5n1G47HVssblTCvm9sjYNYkbVynuFnAB+6CBoWrnovgKhPw9mbP4HVie4TyOblxrLpvTs=
+    jdk: openjdk8
 env:
   global:
-  - secure: kvIfncs3hijnr1lxdCtukQ+Un6I0eQTkH8+uYU8nNEKZyqDAfg2xIeEpPPcMYf87FZ/R4qq9HPuqS4yLPA7aEP/8tycxqmgEVgg1EPau9gdtnzdbXc/BNR+LZftOPu6aLzlE+IUwOVDw99lTjhgqMBBU9dBrpYHrFuahscp2FHg=
-  - secure: RrVnv6xhjnm9TNCk4v25B2n0cMfX0ddWOUynJrjy8dToyiWSK0y2Jo4CicIy8TbmHuA5nDfbEo4LFR+74ytQWSFzDUgURqfAsFKVYIPCoPX2LIq1aCMhbRq8zESP1XVUrNmQ0XET4sOVr2+6PyhJkz7jyI4rN2bOTaPpdG3k2WU=
+  - secure: NGWel52i2009kLxjzL70Q2000634giky2+62ibppe9kCFvFpWmL3s4/ax20jLGvjC2PWHu8tNMGeAkL5IL3hHKk0ynC+Z1eGHhYXQS4mQeIi3yUtRQMaD0WJzpQbU0N7xRIthH0eQa+KSO8XBzSPO1PH7U9y3xV6/++7sMXIAe0=
+  - secure: RsOrpiyAGPdwXFVO/rbS2BnSlmDQWTsyAeCfxwVA9rLGcTcmrfIX0ClCwfYbO+mVU5kTN/BKPglMVXzKka3hp+aYwnyD1D/GbwBvx/U4Dpu7AXw1ES6LsG9XmyNvcUoxCwt9ZsKtrQL2+o952Bjtt8q3eyEJafMy0r5q7mt26sE=
