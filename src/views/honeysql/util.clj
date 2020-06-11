@@ -32,17 +32,22 @@
        (keep isolate-tables)
        (swap! tables #(into %1 %2))))
 
-(defn insert-tables
-  [query]
-  (some->> query :insert-into first-leaf vector))
+(defn from-join-tables
+  [node from tables]
+  (from-tables from tables)
+  (doseq [join-key [:join :left-join :right-join :full-join]]
+    (when-let [join (get node join-key)] (join-tables join tables))))
 
-(defn update-tables
-  [query]
-  (if-let [v (:update query)] [v] []))
+(defn insert-tables
+  [insert tables]
+  (when-let [v (first-leaf insert)]
+    (swap! tables conj v)))
 
 (defn delete-tables
-  [query]
-  (if-let [v (:delete-from query)] [v] []))
+  [node delete-from tables]
+  (from-tables [delete-from] tables)
+  (when-let [v (:using node)]
+    (from-tables v tables)))
 
 (defn query-tables
   "Return all the tables in an sql statement."
@@ -50,13 +55,12 @@
   (let [tables (atom #{})
         get-tables (fn [node]
                      (when (map? node)
-                       (when-let [from (:from node)]
-                         (from-tables from tables)
-                         (doseq [join-key [:join :left-join :right-join :full-join]]
-                           (when-let [join (get node join-key)] (join-tables join tables)))))
+                       (let [{:keys [from insert-into update delete-from]} node]
+                         (when update      (from-join-tables node [update] tables))
+                         (when from        (from-join-tables node from tables))
+                         (when insert-into (insert-tables insert-into tables))
+                         (when delete-from (delete-tables node delete-from tables))))
                      node)]
     (clojure.walk/postwalk get-tables query)
-    (-> @tables
-        (into (insert-tables query))
-        (into (update-tables query))
-        (into (delete-tables query)))))
+    @tables))
+
