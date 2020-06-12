@@ -20,7 +20,7 @@
   [from tables]
   (->> from
        (keep isolate-tables)
-       (swap! tables #(into %1 %2))))
+       (into tables)))
 
 (defn every-second
   [coll]
@@ -30,37 +30,48 @@
   [join tables]
   (->> (every-second join)
        (keep isolate-tables)
-       (swap! tables #(into %1 %2))))
+       (into tables)))
 
 (defn from-join-tables
   [node from tables]
-  (from-tables from tables)
-  (doseq [join-key [:join :left-join :right-join :full-join]]
-    (when-let [join (get node join-key)] (join-tables join tables))))
+  (let [{:keys [join left-join right-join full-join]} node]
+    (cond->> (from-tables from tables)
+      join       (join-tables join      )
+      left-join  (join-tables left-join )
+      right-join (join-tables right-join)
+      full-join  (join-tables full-join ))))
 
 (defn insert-tables
   [insert tables]
-  (when-let [v (first-leaf insert)]
-    (swap! tables conj v)))
+  (if-let [v (first-leaf insert)]
+    (conj tables v)
+    tables))
 
 (defn delete-tables
   [node delete-from tables]
-  (from-tables [delete-from] tables)
-  (when-let [v (:using node)]
-    (from-tables v tables)))
+  (let [{:keys [using]} node]
+    (cond->> tables
+      true   (from-tables [delete-from])
+      using  (from-tables using))))
+
+(defn reduce-walk
+  [f acc form]
+  (let [pf (partial reduce-walk f)]
+    (if (coll? form)
+      (f (reduce pf acc form) form)
+      (f acc form))))
 
 (defn query-tables
   "Return all the tables in an sql statement."
   [query]
-  (let [tables (atom #{})
-        get-tables (fn [node]
-                     (when (map? node)
-                       (let [{:keys [from insert-into update delete-from]} node]
-                         (when update      (from-join-tables node [update] tables))
-                         (when from        (from-join-tables node from tables))
-                         (when insert-into (insert-tables insert-into tables))
-                         (when delete-from (delete-tables node delete-from tables))))
-                     node)]
-    (clojure.walk/postwalk get-tables query)
-    @tables))
+  (reduce-walk (fn [tables node]
+                 (if (map? node)
+                   (let [{:keys [from insert-into update delete-from]} node]
+                     (cond->> tables
+                       update      (from-join-tables node [update])
+                       from        (from-join-tables node from)
+                       insert-into (insert-tables insert-into)
+                       delete-from (delete-tables node delete-from)))
+                   tables))
+               #{} query))
 
