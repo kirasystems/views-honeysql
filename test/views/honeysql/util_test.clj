@@ -3,7 +3,7 @@
             [honeysql.core :as hsql]
             [views.honeysql.util :as util]))
 
-(deftest query-tables-test
+(deftest query-tables-select-test
   (testing "will return the list of tables in a simple select from
   table query"
     (let [query (hsql/build {:select [:field1]
@@ -67,6 +67,10 @@
       (is (= #{:foo :bar}
              (util/query-tables query)))))
 
+  (testing "exist select"
+    (let [query {:exists {:select [:a] :from [:foo]}}]
+      (is (= #{:foo} (util/query-tables query)))))
+
   (testing "multiple from,join"
     (let [query {:select [[{:select [:%count.aa.a]
                             :from [[:AA :aa]
@@ -118,3 +122,95 @@
                :OMM
                :WF}
              (util/query-tables query))))))
+
+(deftest query-tables-delete-test
+  (testing "simple delete"
+    (let [query (hsql/build {:delete-from :foo
+                             :where [:= :id :name]})]
+      (is (= #{:foo} (util/query-tables query))))
+
+    (let [query (hsql/build {:delete-from [:foo :f]
+                             :where [:= :f.id :f.name]})]
+      (is (= #{:foo} (util/query-tables query)))))
+
+  (testing "delete with using"
+    (let [query {:delete-from :foo
+                   :using [:bar]
+                   :where [:= :foo.id :bar.id]}]
+      (is (= #{:foo :bar} (util/query-tables query))))
+
+    (let [query {:delete-from [:foo :f]
+                 :using {:bar :b}
+                 :where [:= :f.id :b.id]}]
+      (is (= #{:foo :bar} (util/query-tables query))))
+
+    (let [query {:delete-from [:foo :f]
+                 :using [[:bar :b]]
+                 :where [:= :f.id :b.id]}]
+      (is (= #{:foo :bar} (util/query-tables query)))))
+
+  (testing "delete in with"
+    (let [query (hsql/build :with [[:DELETED
+                                    {:delete-from [:foo :f]
+                                     :where       [:= :f.id :f.name]
+                                     :returning   [:f.id :f.name]}]]
+                            :insert-into
+                            [[:bar [:id :name]]
+                             {:select [:*]
+                              :from   [:DELETED]}])]
+      (is (= #{:foo :bar :DELETED} (util/query-tables query)))))
+
+  (testing "delete with using in with"
+    (let [query (hsql/build :with [[:DELETED
+                                    {:delete-from [:foo :f]
+                                     :using {:baz :z}
+                                     :where       [:= :f.id :z.id]
+                                     :returning   [:f.id :f.name]}]]
+                            :insert-into
+                            [[:bar [:id :name]]
+                             {:select [:*]
+                              :from   [:DELETED]}])]
+      (is (= #{:foo :bar :baz :DELETED} (util/query-tables query))))))
+
+(deftest query-tables-insert-test
+  (testing "insert"
+    (let [query (hsql/build :insert-into :foo
+                            :values [{:id 1
+                                      :val 2}])]
+      (is (= #{:foo} (util/query-tables query)))))
+
+  (testing "insert into select"
+    (let [query (hsql/build :insert-into
+                            [[:foo [:id :name]]
+                             {:select [:id :name]
+                              :from   [:bar]}])]
+      (is (= #{:foo :bar} (util/query-tables query))))
+
+    (let [query (hsql/build :insert-into
+                            [:foo {:select [:id]
+                                   :from [:bar]}])]
+      (is (= #{:foo :bar} (util/query-tables query))))))
+
+(deftest query-tables-update-test
+  (testing "update"
+    (let [query (hsql/build {:update :foo
+                             :set    {:a 1}
+                             :where  [:= :b 42]})]
+      (is (= #{:foo} (util/query-tables query)))))
+
+  (testing "update with join"
+    (let [query (hsql/build {:update :foo
+                             :join   [:bar [:= :bar.id :foo.bar_id]]
+                             :set    {:a 1}
+                             :where  [:= :bar.b 42]})]
+      (is (= #{:foo :bar} (util/query-tables query)))))
+
+  (testing "update and from are in same time"
+    (let [query (hsql/build {:update [:foo :f]
+                             :set    {:kind :c.test}
+                             :from   [[{:select [:b.test]
+                                        :from   [[:bar :b]]
+                                        :where  [:= :b.id 1]} :c]]
+                             :where  [:= :f.kind "drama"]})]
+      (is (= #{:foo :bar} (util/query-tables query))))))
+
